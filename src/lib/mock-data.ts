@@ -37,3 +37,5 @@ export const  kpis = [
     { label: "Interested Leads", value: "637", delta: "+21.9%", positive: true },
     { label: "Meetings Scheduled", value: "149", delta: "-2.3%", positive: false },
 ];
+
+export type { CallResponse } from "./api/types";
