@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { AudioLines, Bot, CreditCard, LayoutDashboard, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
     DropdownMenu,
@@ -26,22 +26,24 @@ export function AppSidebar() {
     const router = useRouter();
 
     return (
-        <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border/60 bg-card/40 backdrop-blur-xl">
-            <div className="flex h-14 items-center gap-2.5 border-b border-border/60 px-5">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-md shadow-violet-950/50">
-                    <AudioLines className="size-4 text-white" />
+        <motion.aside
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="surface-sidebar fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border"
+        >
+            <div className="flex h-14 items-center gap-2.5 border-b border-border px-5">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-secondary shadow-[var(--inset-highlight)]">
+                    <AudioLines className="size-4 text-primary" />
                 </div>
                 <div className="flex flex-col leading-none">
-                    <span className="text-sm font-semibold tracking-tight">VoxaSell</span>
-                    <span className="text-[10px] text-muted-foreground">Voice AI Platform</span>
+                    <span className="text-sm font-medium text-foreground">VoxaSell</span>
+                    <span className="text-[11px] text-muted-foreground">Voice AI</span>
                 </div>
-                <Badge variant="secondary" className="ml-auto text-[10px]">v0.1</Badge>
             </div>
 
-            <nav className="flex-1 space-y-1 px-3 py-4">
-                <p className="px-2 pb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Workspace
-                </p>
+            <nav className="flex-1 space-y-0.5 px-3 py-4">
+                <p className="px-2.5 pb-2 text-[11px] font-medium text-muted-foreground">Workspace</p>
                 {navItems.map((item) => {
                     const active = pathname.startsWith(item.href);
                     return (
@@ -49,28 +51,33 @@ export function AppSidebar() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                                active
-                                    ? "bg-violet-500/15 text-violet-300 shadow-[inset_0_0_0_1px_hsl(263_70%_58%_/_0.25)]"
-                                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                                "group relative flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+                                active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                             )}
                         >
-                            <item.icon className={cn("size-4", active && "text-violet-400")} />
-                            {item.label}
+                            {active && (
+                                <motion.span
+                                    layoutId="nav-pill"
+                                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                                    className="absolute inset-0 rounded-md bg-secondary shadow-[var(--inset-shadow-active)]"
+                                />
+                            )}
+                            <item.icon className={cn("relative size-4 transition-transform duration-200", active ? "text-primary" : "group-hover:translate-x-0.5")} />
+                            <span className="relative">{item.label}</span>
                         </Link>
                     );
                 })}
             </nav>
 
-            <div className="border-t border-border/60 p-3">
+            <div className="border-t border-border p-3">
                 <DropdownMenu>
-                    <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                        <Avatar className="size-8">
-                            <AvatarFallback className="bg-violet-600 text-xs text-white">AB</AvatarFallback>
+                    <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-left transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <Avatar className="size-7">
+                            <AvatarFallback className="bg-secondary text-[11px] text-foreground">AB</AvatarFallback>
                         </Avatar>
                         <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                            <span className="truncate text-sm font-medium">Archan Banerjee</span>
-                            <span className="truncate text-xs text-muted-foreground">archan@voxasell.ai</span>
+                            <span className="truncate text-sm font-medium text-foreground">Archan Banerjee</span>
+                            <span className="truncate text-[11px] text-muted-foreground">archan@voxasell.ai</span>
                         </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" side="top" className="w-56">
@@ -85,6 +92,6 @@ export function AppSidebar() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-        </aside>
+        </motion.aside>
     );
 }

@@ -4,6 +4,7 @@ import { TopBar } from "@/components/top-bar";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen bg-background">
+            <div aria-hidden className="grain" />
             <AppSidebar />
             <div className="pl-60">
                 <TopBar />
