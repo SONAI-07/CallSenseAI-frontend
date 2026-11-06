@@ -27,9 +27,9 @@ export default function LoginPage() {
         const tenant_name = String(form.get("tenant_name") ?? "");
 
         try {
-            const res = mode === "signup"
-                ? await signup(email, password, tenant_name)
-                : await login(email, password);
+            const res = mode === "login"
+                ? await login(email, password)
+                : await signup(email, password, tenant_name);
             setToken(res.access_token);
             router.push("/dashboard");
         } catch (err) {
@@ -46,75 +46,83 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
-            <div className="pointer-events-none absolute -top-32 -left-32 size-96 rounded-full bg-violet-600/25 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-32 -right-32 size-96 rounded-full bg-cyan-500/15 blur-3xl" />
+        <div className="scene-warm relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16">
+            {/* Wordmark in the calm corner, like the reference composition */}
+            <div className="absolute left-6 top-6 flex items-center gap-2.5">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-secondary shadow-[var(--inset-highlight)]">
+                    <AudioLines className="size-4 text-primary" />
+                </div>
+                <div className="flex flex-col leading-none">
+                    <span className="text-sm font-medium text-foreground">VoxaSell</span>
+                    <span className="text-[11px] text-muted-foreground">Voice AI for outbound sales</span>
+                </div>
+            </div>
+
             <motion.div
-                initial={{ opacity: 0, y: 16, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                className="relative w-full max-w-md rounded-2xl border border-white/10 bg-card/70 p-8 shadow-2xl shadow-violet-950/40 backdrop-blur-xl"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full max-w-md lg:ml-[8vw] lg:mr-auto"
             >
-                <div className="mb-8 flex flex-col items-center text-center">
-                    <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-lg shadow-violet-900/50">
-                        <AudioLines className="size-6 text-white" />
+                <div className="rounded-2xl border border-border bg-card p-8 shadow-[var(--inset-highlight),0_24px_64px_rgba(0,0,0,0.45)]">
+                    <div className="mb-8 flex flex-col items-start text-left">
+                        <h1 className="text-2xl font-medium text-foreground">
+                            {mode === "login" ? "Sign in" : "Create your workspace"}
+                        </h1>
+                        <p className="mt-1.5 text-sm text-muted-foreground">
+                            {mode === "login" ? "Access your CallSense workspace." : "One workspace, one user, one step."}
+                        </p>
                     </div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {mode === "login" ? "Welcome back" : "Create workspace"}
-                    </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {mode === "login" ? "Sign in to your CallSense workspace" : "New tenant + user in one step"}
+
+                    <div className="mb-6 flex rounded-lg border border-border bg-muted/60 p-1">
+                        <button
+                            type="button"
+                            onClick={() => setMode("login")}
+                            className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${mode === "login" ? "bg-secondary text-foreground shadow-[var(--inset-shadow-active)]" : "text-muted-foreground hover:text-foreground"}`}
+                        >Sign in</button>
+                        <button
+                            type="button"
+                            onClick={() => setMode("signup")}
+                            className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${mode === "signup" ? "bg-secondary text-foreground shadow-[var(--inset-shadow-active)]" : "text-muted-foreground hover:text-foreground"}`}
+                        >Sign up</button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input id="email" name="email" type="email" placeholder="you@company.com" required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input id="password" name="password" type="password" placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"} required minLength={mode === "signup" ? 8 : undefined} />
+                        </div>
+                        {mode === "signup" && (
+                            <div className="space-y-2">
+                                <Label htmlFor="tenant_name">Workspace name</Label>
+                                <Input id="tenant_name" name="tenant_name" placeholder="Acme Sales" required minLength={1} maxLength={255} />
+                            </div>
+                        )}
+                        {error && <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>}
+                        <Button type="submit" className="w-full" disabled={loading}>
+                            {loading && <Loader2 className="size-4 animate-spin" />}
+                            {loading ? "Please wait" : mode === "login" ? "Sign in" : "Create account"}
+                        </Button>
+                    </form>
+
+                    <div className="my-6 flex items-center gap-3">
+                        <Separator className="flex-1" />
+                        <span className="text-xs text-muted-foreground">or</span>
+                        <Separator className="flex-1" />
+                    </div>
+
+                    <Button variant="outline" className="w-full" onClick={() => router.push("/dashboard")}>
+                        Continue in demo mode
+                    </Button>
+
+                    <p className="mt-6 rounded-lg border border-border bg-muted/60 px-3 py-2 text-center text-xs text-muted-foreground">
+                        {API_CONFIGURED ? `Connected to ${API_BASE}` : "Demo mode — set NEXT_PUBLIC_API_URL to wire the backend."}
                     </p>
                 </div>
-
-                <div className="mb-5 flex rounded-lg border border-border/60 bg-muted/40 p-1">
-                    <button
-                        type="button"
-                        onClick={() => setMode("login")}
-                        className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${mode === "login" ? "bg-violet-600 text-white" : "text-muted-foreground"}`}
-                    >Sign in</button>
-                    <button
-                        type="button"
-                        onClick={() => setMode("signup")}
-                        className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${mode === "signup" ? "bg-violet-600 text-white" : "text-muted-foreground"}`}
-                    >Sign up</button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" placeholder="you@company.com" required />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" name="password" type="password" placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"} required minLength={mode === "signup" ? 8 : undefined} />
-                    </div>
-                    {mode === "signup" && (
-                        <div className="space-y-2">
-                            <Label htmlFor="tenant_name">Workspace name</Label>
-                            <Input id="tenant_name" name="tenant_name" placeholder="Acme Sales" required minLength={1} maxLength={255} />
-                        </div>
-                    )}
-                    {error && <p className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-400">{error}</p>}
-                    <Button type="submit" className="w-full" disabled={loading}>
-                        {loading && <Loader2 className="size-4 animate-spin" />}
-                        {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
-                    </Button>
-                </form>
-
-                <div className="my-6 flex items-center gap-3">
-                    <Separator className="flex-1" />
-                    <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
-                    <Separator className="flex-1" />
-                </div>
-
-                <Button variant="outline" className="w-full" onClick={() => router.push("/dashboard")}>
-                    Skip — enter demo mode
-                </Button>
-
-                <p className="mt-6 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
-                    {API_CONFIGURED ? `Connected to ${API_BASE}` : "Demo mode — set NEXT_PUBLIC_API_URL to wire the backend."}
-                </p>
             </motion.div>
         </div>
     );
