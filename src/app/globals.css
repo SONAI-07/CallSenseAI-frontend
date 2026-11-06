@@ -4,61 +4,60 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(224 71% 4%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(224 71% 4%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(224 71% 4%);
-  --primary: hsl(262 83% 58%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(220 14% 96%);
-  --secondary-foreground: hsl(224 71% 4%);
-  --muted: hsl(220 14% 96%);
-  --muted-foreground: hsl(220 9% 46%);
-  --accent: hsl(220 14% 96%);
-  --accent-foreground: hsl(224 71% 4%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(220 13% 91%);
-  --input: hsl(220 13% 91%);
-  --ring: hsl(262 83% 58%);
-  --chart-1: hsl(262 83% 58%);
-  --chart-2: hsl(173 58% 39%);
-  --chart-3: hsl(197 37% 24%);
-  --chart-4: hsl(43 74% 66%);
-  --chart-5: hsl(27 87% 67%);
+  /* Light world: cream paper, caramel ink */
+  --background: #f5e9dd;
+  --foreground: #1b1613;
+  --card: #fffdf9;
+  --card-foreground: #1b1613;
+  --popover: #fffdf9;
+  --popover-foreground: #1b1613;
+  --primary: #8a5f3c;
+  --primary-foreground: #fffdf9;
+  --secondary: #ece0d2;
+  --secondary-foreground: #1b1613;
+  --muted: #ece0d2;
+  --muted-foreground: #6f6355;
+  --accent: #ece0d2;
+  --accent-foreground: #1b1613;
+  --destructive: #a34444;
+  --destructive-foreground: #fffdf9;
+  --border: rgba(27, 22, 19, 0.10);
+  --input: rgba(27, 22, 19, 0.10);
+  --ring: #8a5f3c;
   --radius: 0.75rem;
+  --chart-1: #8a5f3c;
+  --chart-2: #a67c52;
+  --chart-3: #7a6450;
+  --chart-4: #6f7f68;
+  --chart-5: #a34444;
 }
 
 .dark {
-  /* Deep Midnight Navy shell */
-  --background: hsl(224 71% 4%);
-  --foreground: hsl(213 31% 91%);
-  --card: hsl(222 47% 7%);
-  --card-foreground: hsl(213 31% 91%);
-  --popover: hsl(222 47% 7%);
-  --popover-foreground: hsl(213 31% 91%);
-  /* Violet primary */
-  --primary: hsl(263 70% 58%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(215 28% 17%);
-  --secondary-foreground: hsl(213 31% 91%);
-  --muted: hsl(215 28% 17%);
-  --muted-foreground: hsl(215 20% 65%);
-  --accent: hsl(215 28% 17%);
-  --accent-foreground: hsl(213 31% 91%);
-  --destructive: hsl(0 63% 31%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(215 28% 17%);
-  --input: hsl(215 28% 17%);
-  --ring: hsl(263 70% 58%);
-  /* Chart palette: violet, teal, sky, amber, rose */
-  --chart-1: hsl(263 70% 58%);
-  --chart-2: hsl(173 58% 45%);
-  --chart-3: hsl(199 89% 48%);
-  --chart-4: hsl(43 74% 56%);
-  --chart-5: hsl(340 75% 55%);
+  /* The gradient set, applied exactly: cream, caramel, warm black */
+  --background: #14110e;      /* warm black, mid stop of the field */
+  --foreground: #f5e9dd;      /* #F5E9DD exactly */
+  --card: #1a1613;
+  --card-foreground: #f5e9dd;
+  --popover: #1f1a16;
+  --popover-foreground: #f5e9dd;
+  --primary: #a67c52;         /* #A67C52 exactly */
+  --primary-foreground: #14110e; /* dark text on caramel = 5:1 contrast */
+  --secondary: #241d18;
+  --secondary-foreground: #f5e9dd;
+  --muted: #241d18;
+  --muted-foreground: #a79a8a;
+  --accent: #241d18;
+  --accent-foreground: #f5e9dd;
+  --destructive: #b85c5c;
+  --destructive-foreground: #f5e9dd;
+  --border: rgba(245, 233, 221, 0.08);
+  --input: rgba(245, 233, 221, 0.08);
+  --ring: #a67c52;
+  --chart-1: #a67c52;
+  --chart-2: #e7daca;
+  --chart-3: #7a6450;
+  --chart-4: #8f9e77;
+  --chart-5: #b85c5c;
 }
 
 @theme inline {
@@ -90,34 +89,50 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Crafted Depth (replaces glassmorphism) */
+  --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --inset-shadow-active: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(245, 233, 221, 0.08);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+  * { @apply border-border outline-ring/50; }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Premium scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ---- The gradient scene, rebuilt from your reference ----
+   Cream pools bottom-left, caramel glows mid-right, warm black above.
+   A calm scrim keeps a quiet zone for text (unslop: text on calm space). */
+.scene-warm {
+  background:
+    linear-gradient(100deg, rgba(14, 12, 11, 0.94) 0%, rgba(14, 12, 11, 0.72) 34%, rgba(14, 12, 11, 0) 68%),
+    radial-gradient(85% 70% at 8% 108%, rgba(245, 233, 221, 0.85) 0%, rgba(245, 233, 221, 0) 55%),
+    radial-gradient(75% 85% at 88% 52%, rgba(166, 124, 82, 0.75) 0%, rgba(166, 124, 82, 0) 62%),
+    linear-gradient(180deg, #0b0a09 0%, #14110e 60%, #1b1613 100%);
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(215 28% 22%);
-  border-radius: 8px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(215 28% 32%);
+@media (max-width: 1023px) {
+  .scene-warm {
+    background:
+      linear-gradient(180deg, rgba(14, 12, 11, 0.94) 0%, rgba(14, 12, 11, 0.78) 45%, rgba(14, 12, 11, 0.15) 100%),
+      radial-gradient(85% 60% at 10% 108%, rgba(245, 233, 221, 0.80) 0%, rgba(245, 233, 221, 0) 55%),
+      radial-gradient(75% 70% at 90% 70%, rgba(166, 124, 82, 0.70) 0%, rgba(166, 124, 82, 0) 62%),
+      linear-gradient(180deg, #0b0a09 0%, #14110e 60%, #1b1613 100%);
+  }
 }
 
-/* Subtle glow selection */
-::selection {
-  background: hsl(263 70% 58% / 0.35);
+/* Crafted Depth scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #241d18;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
+::-webkit-scrollbar-thumb:hover { background: #362b23; background-clip: padding-box; }
+
+::selection { background: rgba(166, 124, 82, 0.30); color: #f5e9dd; }
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
