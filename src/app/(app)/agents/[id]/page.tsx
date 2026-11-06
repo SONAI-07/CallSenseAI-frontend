@@ -4,29 +4,28 @@ import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, CalendarCheck, Mail, MessageCircle } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Separator } from "@/components/ui/separator";
+import { Waveform } from "@/components/waveform";
 import { agents, callTrend, type AgentStatus } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
 
 const chartConfig = {
-    calls: { label: "Calls dialed", color: "var(--color-chart-1)" },
-    connected: { label: "Connected", color: "var(--color-chart-2)" },
+    connected: { label: "Connected", color: "#1b1613" },
+    calls: { label: "Dialed", color: "#8a7a66" },
 } satisfies ChartConfig;
 
-const statusStyles: Record<AgentStatus, string> = {
-    active: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
-    paused: "border-amber-500/20 bg-amber-500/10 text-amber-400",
-    draft: "border-border/60 bg-muted/40 text-muted-foreground",
+const dotTone: Record<AgentStatus, string> = {
+    active: "bg-[#8f9e77]",
+    paused: "bg-[#c9a06a]",
+    draft: "bg-[#6f6355]",
 };
 
-const callStatusStyles: Record<string, string> = {
-    completed: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
-    "no-answer": "border-border/60 bg-muted/40 text-muted-foreground",
-    failed: "border-rose-500/20 bg-rose-500/10 text-rose-400",
+const callStatus: Record<string, string> = {
+    completed: "bg-[#8f9e77]",
+    "no-answer": "bg-[#6f6355]",
+    failed: "bg-[#b85c5c]",
 };
 
 const recentCalls = [
@@ -36,6 +35,15 @@ const recentCalls = [
     { customer: "Sara Khan — Bloomly", status: "failed", outcome: "Provider error", duration: "0:12", time: "2 hrs ago" },
 ];
 
+function Status({ tone, label }: { tone: string; label: string }) {
+    return (
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span className={`size-1.5 rounded-full ${tone}`} />
+            {label}
+        </span>
+    );
+}
+
 export default function AgentDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -43,9 +51,9 @@ export default function AgentDetailPage() {
 
     if (!agent) {
         return (
-            <Card className="border-border/60 bg-card/60">
+            <Card className="surface-card border-border shadow-[var(--inset-highlight)]">
                 <CardContent className="flex flex-col items-center gap-3 py-24 text-center">
-                    <h1 className="text-lg font-semibold">Agent not found</h1>
+                    <h1 className="text-lg font-medium text-foreground">Agent not found</h1>
                     <Button variant="outline" onClick={() => router.push("/agents")}>Back to agents</Button>
                 </CardContent>
             </Card>
@@ -54,9 +62,9 @@ export default function AgentDetailPage() {
 
     const connected = Math.round((agent.calls * agent.connectedRate) / 100);
     const intent = [
-        { label: "Strong interest", value: agent.interested, bar: "bg-emerald-500" },
-        { label: "Neutral", value: Math.round(connected * 0.22), bar: "bg-amber-500" },
-        { label: "Not interested", value: Math.max(connected - agent.interested - Math.round(connected * 0.22), 0), bar: "bg-rose-500" },
+        { label: "Strong interest", value: agent.interested, bar: "bg-primary" },
+        { label: "Neutral", value: Math.round(connected * 0.22), bar: "bg-[#8a7a66]" },
+        { label: "Not interested", value: Math.max(connected - agent.interested - Math.round(connected * 0.22), 0), bar: "bg-[#4a4038]" },
     ];
     const actions = [
         { icon: MessageCircle, label: "WhatsApp brochures sent", value: Math.round(agent.meetings * 1.4) },
@@ -65,17 +73,28 @@ export default function AgentDetailPage() {
     ];
 
     return (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="space-y-6">
-            <div className="flex items-center gap-3">
-                <Button variant="ghost" size="icon" onClick={() => router.push("/agents")}>
-                    <ArrowLeft className="size-4" />
-                </Button>
-                <div>
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-semibold tracking-tight">{agent.name}</h1>
-                        <Badge variant="secondary" className={cn("capitalize", statusStyles[agent.status])}>{agent.status}</Badge>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" size="icon" onClick={() => router.push("/agents")}>
+                        <ArrowLeft className="size-4" />
+                    </Button>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className={`size-1.5 rounded-full ${dotTone[agent.status]}`} />
+                            <h1 className="text-2xl font-medium text-foreground">{agent.name}</h1>
+                        </div>
+                        <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                            {agent.voice} · {agent.language} · deployed {agent.lastDeployed}
+                        </p>
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{agent.voice} • {agent.language} • deployed {agent.lastDeployed}</p>
+                </div>
+                <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/40 px-3 py-2">
+                    <Waveform seed={agent.id} live={agent.status === "active"} className="text-primary" />
+                    <div className="flex flex-col leading-none">
+                        <span className="font-mono text-[11px] text-foreground">{agent.status === "active" ? "On air" : "Idle"}</span>
+                        <span className="mt-0.5 font-mono text-[10px] text-muted-foreground">{agent.calls.toLocaleString()} calls lifetime</span>
+                    </div>
                 </div>
             </div>
 
@@ -86,48 +105,54 @@ export default function AgentDetailPage() {
                     { label: "Interested", value: agent.interested.toLocaleString() },
                     { label: "Meetings", value: agent.meetings.toLocaleString() },
                 ].map((k) => (
-                    <Card key={k.label} className="border-border/60 bg-card/60">
+                    <Card key={k.label} className="surface-card border-border shadow-[var(--inset-highlight)] transition-colors hover:border-[rgba(245,233,221,0.18)]">
                         <CardContent className="p-5">
                             <p className="text-xs text-muted-foreground">{k.label}</p>
-                            <p className="mt-1 text-2xl font-semibold tabular-nums">{k.value}</p>
+                            <p className="mt-2 font-mono text-[28px] font-medium leading-none tabular-nums text-foreground">{k.value}</p>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <Card className="border-border/60 bg-card/60 lg:col-span-2">
-                    <CardHeader>
-                        <CardTitle>Call activity</CardTitle>
-                        <CardDescription>Last 7 days for this agent</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                <section className="surface-paper rounded-2xl border border-[rgba(27,22,19,0.10)] p-6 lg:col-span-2">
+                    <div>
+                        <h2 className="text-base font-medium text-[#1b1613]">Call activity</h2>
+                        <p className="mt-0.5 text-xs text-[#6f6355]">Last 7 days for this agent</p>
+                    </div>
+                    <div className="mt-4">
                         <ChartContainer config={chartConfig} className="h-56 w-full">
-                            <AreaChart data={callTrend} accessibilityLayer>
-                                <CartesianGrid vertical={false} stroke="hsl(215 28% 17%)" />
-                                <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+                            <AreaChart data={callTrend} accessibilityLayer margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="fillPaperDetail" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#a67c52" stopOpacity={0.30} />
+                                        <stop offset="100%" stopColor="#a67c52" stopOpacity={0.03} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid vertical={false} stroke="rgba(27,22,19,0.08)" />
+                                <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={12} tick={{ fontSize: 11, fill: "#6f6355" }} />
                                 <ChartTooltip content={<ChartTooltipContent />} />
-                                <Area type="monotone" dataKey="calls" stroke="var(--color-chart-1)" fill="var(--color-chart-1)" fillOpacity={0.22} strokeWidth={2} />
-                                <Area type="monotone" dataKey="connected" stroke="var(--color-chart-2)" fill="var(--color-chart-2)" fillOpacity={0.14} strokeWidth={2} />
+                                <Area type="monotone" dataKey="calls" stroke="#8a7a66" strokeWidth={1.5} fill="none" />
+                                <Area type="monotone" dataKey="connected" stroke="#1b1613" strokeWidth={2} fill="url(#fillPaperDetail)" />
                             </AreaChart>
                         </ChartContainer>
-                    </CardContent>
-                </Card>
+                    </div>
+                </section>
 
-                <Card className="border-border/60 bg-card/60">
-                    <CardHeader>
-                        <CardTitle>Intent breakdown</CardTitle>
-                        <CardDescription>{connected.toLocaleString()} connected calls</CardDescription>
+                <Card className="surface-raised border-border shadow-[var(--inset-highlight)]">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-medium">Intent breakdown</CardTitle>
+                        <CardDescription className="text-xs">{connected.toLocaleString()} connected calls</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {intent.map((row) => (
                             <div key={row.label}>
-                                <div className="mb-1 flex justify-between text-xs">
+                                <div className="mb-1.5 flex justify-between font-mono text-[11px]">
                                     <span className="text-muted-foreground">{row.label}</span>
-                                    <span className="tabular-nums">{row.value.toLocaleString()}</span>
+                                    <span className="tabular-nums text-foreground">{row.value.toLocaleString()}</span>
                                 </div>
-                                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                                    <div className={cn("h-full rounded-full", row.bar)} style={{ width: `${connected ? (row.value / connected) * 100 : 0}%` }} />
+                                <div className="meter-ticks h-2 overflow-hidden rounded-full bg-[rgba(245,233,221,0.06)]">
+                                    <div className={`h-full rounded-full ${row.bar}`} style={{ width: `${connected ? (row.value / connected) * 100 : 0}%` }} />
                                 </div>
                             </div>
                         ))}
@@ -135,10 +160,10 @@ export default function AgentDetailPage() {
                         <div className="space-y-2.5">
                             {actions.map((a) => (
                                 <div key={a.label} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-muted-foreground">
-                    <a.icon className="size-4 text-violet-400" /> {a.label}
-                  </span>
-                                    <span className="font-medium tabular-nums">{a.value.toLocaleString()}</span>
+                                    <span className="flex items-center gap-2 text-muted-foreground">
+                                        <a.icon className="size-4" /> {a.label}
+                                    </span>
+                                    <span className="font-mono font-medium tabular-nums text-foreground">{a.value.toLocaleString()}</span>
                                 </div>
                             ))}
                         </div>
@@ -146,19 +171,19 @@ export default function AgentDetailPage() {
                 </Card>
             </div>
 
-            <Card className="border-border/60 bg-card/60">
-                <CardHeader>
-                    <CardTitle>Recent calls</CardTitle>
-                    <CardDescription>Latest conversations handled by this agent</CardDescription>
+            <Card className="surface-card border-border shadow-[var(--inset-highlight)]">
+                <CardHeader className="pb-4">
+                    <CardTitle className="text-base font-medium">Recent calls</CardTitle>
+                    <CardDescription className="text-xs">Latest conversations handled by this agent</CardDescription>
                 </CardHeader>
-                <CardContent className="divide-y divide-border/60">
+                <CardContent className="divide-y divide-border">
                     {recentCalls.map((call) => (
                         <div key={call.customer} className="flex flex-wrap items-center justify-between gap-3 py-3">
                             <div>
-                                <p className="text-sm font-medium">{call.customer}</p>
-                                <p className="text-xs text-muted-foreground">{call.outcome} • {call.duration} • {call.time}</p>
+                                <p className="text-sm font-medium text-foreground">{call.customer}</p>
+                                <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{call.outcome} · {call.duration} · {call.time}</p>
                             </div>
-                            <Badge variant="secondary" className={callStatusStyles[call.status]}>{call.status}</Badge>
+                            <Status tone={callStatus[call.status] ?? "bg-[#6f6355]"} label={call.status} />
                         </div>
                     ))}
                 </CardContent>
