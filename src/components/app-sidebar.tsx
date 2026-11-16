@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { AudioLines, Bot, CreditCard, LayoutDashboard, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/lib/use-auth";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,7 +23,7 @@ const navItems = [
 
 export function AppSidebar() {
     const pathname = usePathname();
-    const router = useRouter();
+    const { user, logout } = useAuth();
 
     return (
         <motion.aside
@@ -72,13 +72,14 @@ export function AppSidebar() {
             <div className="border-t border-border p-3">
                 <DropdownMenu>
                     <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-left transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                        <Avatar className="size-7">
-                            <AvatarFallback className="bg-secondary text-[11px] text-foreground">AB</AvatarFallback>
-                        </Avatar>
-                        <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                            <span className="truncate text-sm font-medium text-foreground">Archan Banerjee</span>
-                            <span className="truncate text-[11px] text-muted-foreground">archan@voxasell.ai</span>
-                        </div>
+                        {/* Plain medallion — no Base UI Avatar context needed */}
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary font-mono text-[11px] text-foreground">
+                            {(user?.user.email ?? "??").slice(0, 2).toUpperCase()}
+                        </span>
+                        <span className="flex min-w-0 flex-1 flex-col leading-tight">
+                            <span className="truncate text-sm font-medium text-foreground">{user?.tenant_name ?? "Workspace"}</span>
+                            <span className="truncate text-[11px] text-muted-foreground">{user?.user.email ?? "demo mode"}</span>
+                        </span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" side="top" className="w-56">
                         <DropdownMenuLabel>My account</DropdownMenuLabel>
@@ -86,7 +87,7 @@ export function AppSidebar() {
                         <DropdownMenuItem>
                             <Settings className="size-4" /> Settings
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push("/login")}>
+                        <DropdownMenuItem onClick={logout}>
                             <LogOut className="size-4" /> Log out
                         </DropdownMenuItem>
                     </DropdownMenuContent>
