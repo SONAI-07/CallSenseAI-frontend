@@ -56,3 +56,16 @@ export type OutboundCallRequest = {
     agent_id: number;
     campaign_id?: number | null;
 };
+
+
+export type AgentResponse = {
+    id: number; name: string; language_code: string; voice_id: string | null;
+    is_active: boolean; created_at: string;
+};
+export type AgentStatsResponse = AgentResponse & {
+    calls: number; connected: number; interested: number; meetings: number;
+};
+export type CampaignResponse = {
+    id: number; agent_id: number; name: string; status: string; is_active: boolean; created_at: string;
+};
+export type CustomerCreateRequest = { name: string; phone_number: string; email?: string | null };
