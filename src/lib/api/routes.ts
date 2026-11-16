@@ -1,13 +1,17 @@
-// ✅ Verified against the backend repo (Phase 0 crawl)
-// ⚠️ TODO items: confirm exact prefixes in FastAPI Swagger → http://localhost:8000/docs
+// Single source of truth. Mirrors app/routes/* in CallSense-AI.
 export const ROUTES = {
-    health: "/health",                       // ✅
-    ready: "/ready",                         // ✅
-    dashboardSummary: "/dashboard/summary",  // ✅
-    calls: "/calls",                         // ✅
-    call: (id: number) => `/calls/${id}`,    // ✅
-    outbound: "/calls/outbound",             // ✅ POST { customer_id }
-    authLogin: "/auth/login",                // ⚠️ verify
-    customers: "/customers",                 // ⚠️ verify
-    callInsights: "/call-insights",          // ⚠️ verify
+    health: "/health",
+    ready: "/ready",
+    authLogin: "/auth/login",
+    authSignup: "/auth/signup",
+    authMe: "/auth/me",
+    dashboardSummary: "/dashboard/summary",
+    customers: "/customers",
+    calls: "/calls",
+    call: (id: number) => `/calls/${id}`,
+    callInsight: (callId: number) => `/calls/${callId}/insight`,
+    outbound: "/calls/outbound",
+    agents: "/agents",
+    agent: (id: number) => `/agents/${id}`,
+    campaigns: "/campaigns",
 } as const;
