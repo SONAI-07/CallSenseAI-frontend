@@ -10,6 +10,10 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { Separator } from "@/components/ui/separator";
 import { Waveform } from "@/components/waveform";
 import { agents, callTrend, type AgentStatus } from "@/lib/mock-data";
+import { listAgents } from "@/lib/api";
+import { useApi } from "@/lib/api/use-api";
+import type { AgentStatsResponse } from "@/lib/api/types";
+import { toUiAgent } from "@/lib/agent";
 
 const chartConfig = {
     connected: { label: "Connected", color: "#1b1613" },
@@ -47,7 +51,11 @@ function Status({ tone, label }: { tone: string; label: string }) {
 export default function AgentDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const agent = agents.find((a) => a.id === params.id);
+    const fleet = useApi(listAgents, [] as AgentStatsResponse[]);
+   const realAgents = fleet.data?.map(toUiAgent) ?? [];
+   const agent =
+      realAgents.find((a) => a.id === params.id) ??
+      agents.find((a) => a.id === params.id);
 
     if (!agent) {
         return (

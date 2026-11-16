@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Waveform } from "@/components/waveform";
 import { agents, type AgentStatus } from "@/lib/mock-data";
+import { listAgents } from "@/lib/api";
+import { useApi } from "@/lib/api/use-api";
+import type { AgentStatsResponse } from "@/lib/api/types";
+import { toUiAgent } from "@/lib/agent";
 
 const dotTone: Record<AgentStatus, string> = {
     active: "bg-[#8f9e77]",
@@ -14,6 +18,9 @@ const dotTone: Record<AgentStatus, string> = {
 };
 
 export default function AgentsPage() {
+    const fleet = useApi(listAgents, [] as AgentStatsResponse[]);
+    const list = fleet.data?.length ? fleet.data.map(toUiAgent) : agents;
+
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
@@ -29,8 +36,8 @@ export default function AgentsPage() {
             </p>
 
             <div className="grid gap-4 md:grid-cols-2">
-                {agents.map((a) => (
-                    <Link key={a.id} href={`/agents/${a.id}`} className="group block">
+                {list.map((a) => (
+                    <Link key={a.id} href={`/agent/${a.id}`} className="group block">
                         <Card className="agent-card surface-card border-border shadow-[var(--inset-highlight)]">
                             <CardContent className="p-5">
                                 <div className="flex items-start justify-between gap-4">
