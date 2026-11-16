@@ -1,16 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { KeyRound, PhoneCall, Plus, SlidersHorizontal, Users } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DemoNotice } from "@/components/demo-notice";
-import { getDashboardSummary, listCalls } from "@/lib/api";
 import { useApi } from "@/lib/api/use-api";
 import { agents, callTrend, type AgentStatus, type CallResponse } from "@/lib/mock-data";
+import { KeyRound, Plus, SlidersHorizontal } from "lucide-react";
+import { CallLauncher } from "@/components/call-launcher";
+import { getDashboardSummary, listCalls, listAgents } from "@/lib/api";
+import type { AgentStatsResponse } from "@/lib/api/types";
+import { toUiAgent } from "@/lib/agent";
 
 const chartConfig = {
     connected: { label: "Connected", color: "#1b1613" },
@@ -75,6 +78,8 @@ const duration = (a: string | null, b: string | null) => {
 export default function DashboardPage() {
     const summary = useApi(getDashboardSummary, fallbackSummary);
     const calls = useApi(listCalls, [] as CallResponse[]);
+    const fleet = useApi(listAgents, [] as AgentStatsResponse[]);
+    const fleetUi = fleet.data?.length ? fleet.data.map(toUiAgent) : agents;
     const s = summary.data ?? fallbackSummary;
     const realCalls = calls.data ?? [];
     const demo = summary.demo || calls.demo;
@@ -151,22 +156,29 @@ export default function DashboardPage() {
                 </section>
 
                 <Card className="surface-raised border-border shadow-[var(--inset-highlight)]">
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-base font-medium">Quick actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-1">
-                        {[
-                            { icon: PhoneCall, label: "Run a test call" },
-                            { icon: Users, label: "Add leads" },
-                            { icon: KeyRound, label: "View API keys" },
-                            { icon: SlidersHorizontal, label: "Agent configuration" },
-                        ].map((a) => (
-                            <Button key={a.label} variant="ghost" className="justify-start gap-3 px-2.5 font-normal text-muted-foreground transition-all hover:translate-x-0.5 hover:bg-[rgba(245,233,221,0.06)] hover:text-foreground">
-                                <a.icon className="size-4" /> {a.label}
-                            </Button>
-                        ))}
-                    </CardContent>
-                </Card>
+                  <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-medium">Quick actions</CardTitle>
+                  </CardHeader>
+           <CardContent className="grid gap-3">
+            {/* Launcher is a single element, not part of the mapped array */}
+            <CallLauncher />
+
+        <div className="grid gap-1 border-t border-border pt-3">
+            {[
+                { icon: KeyRound, label: "View API keys" },
+                { icon: SlidersHorizontal, label: "Agent configuration" },
+            ].map((a) => (
+                <Button
+                    key={a.label}
+                    variant="ghost"
+                    className="justify-start gap-3 px-2.5 font-normal text-muted-foreground transition-all hover:translate-x-0.5 hover:bg-[rgba(245,233,221,0.06)] hover:text-foreground"
+                >
+                    <a.icon className="size-4" /> {a.label}
+                </Button>
+            ))}
+        </div>
+    </CardContent>
+</Card>
             </div>
 
             <Card className="surface-card border-border shadow-[var(--inset-highlight)]">
@@ -227,7 +239,7 @@ export default function DashboardPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {agents.map((agent) => (
+                           {fleetUi.map((agent) => (
                                 <TableRow key={agent.id} className="transition-colors hover:bg-[rgba(245,233,221,0.03)]">
                                     <TableCell>
                                         <div className="text-sm font-medium text-foreground">{agent.name}</div>
